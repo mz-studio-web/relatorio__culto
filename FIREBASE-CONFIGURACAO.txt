@@ -1,0 +1,70 @@
+=============================================================
+ HISTÓRICO PARTILHADO ENTRE DISPOSITIVOS (Firebase / Firestore)
+ Relatório do Culto — Igreja Evangélica Assembleia de Deus
+=============================================================
+
+A app funciona sem isto (guarda em cada aparelho). Faça esta
+configuração UMA VEZ para que o histórico seja o MESMO em todos
+os telemóveis e computadores. É gratuito e não precisa de cartão.
+
+-------------------------------------------------------------
+PASSO 1 — Criar o projeto
+-------------------------------------------------------------
+1. Vá a https://console.firebase.google.com
+2. "Add project" / "Adicionar projeto". Dê um nome (ex.: relatorio-culto).
+3. Pode desativar o Google Analytics (não é preciso). Criar.
+
+-------------------------------------------------------------
+PASSO 2 — Criar a base de dados
+-------------------------------------------------------------
+1. No menu: Build -> Firestore Database -> "Create database".
+2. Escolha a localização (ex.: europe-west) e crie.
+3. Comece em "production mode" (as regras abaixo tratam do acesso).
+
+-------------------------------------------------------------
+PASSO 3 — Obter a configuração (a sua "chave")
+-------------------------------------------------------------
+1. Engrenagem (Project settings) -> separador "General".
+2. Em "Your apps", clique no ícone Web  </>  e registe uma app
+   (dê um apelido, ex.: web). NÃO precisa do Hosting aqui.
+3. Vai aparecer um bloco "firebaseConfig" com apiKey, projectId, etc.
+   COPIE esse bloco.
+
+-------------------------------------------------------------
+PASSO 4 — Colar no index.html
+-------------------------------------------------------------
+1. Abra o index.html (num editor de texto).
+2. Procure por:  var firebaseConfig = {
+3. Substitua os valores "COLE_AQUI" pelos valores do seu bloco
+   (apiKey, authDomain, projectId, storageBucket,
+    messagingSenderId, appId).
+4. Guarde e volte a publicar o site (GitHub Pages: enviar o novo
+   index.html por cima e Commit).
+
+-------------------------------------------------------------
+PASSO 5 — Regras de segurança (colar no Firestore)
+-------------------------------------------------------------
+No Firestore -> separador "Rules", apague o que estiver e cole:
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /relatorio_culto/historico {
+      allow read, write: if true;
+    }
+  }
+}
+
+Clique em "Publish".
+
+-------------------------------------------------------------
+PRONTO
+-------------------------------------------------------------
+Abra a app em dois aparelhos: o que um guarda aparece no outro.
+Ao ligar pela primeira vez, a app mostra "Histórico ligado à nuvem".
+Continua a funcionar offline e sincroniza quando houver internet.
+
+NOTA DE SEGURANÇA (honesta): estas regras deixam quem souber o
+endereço do projeto ler/gravar. Para uma app interna de igreja é
+geralmente aceitável. Se quiser proteção extra (login anónimo),
+peça-me e eu acrescento.
