@@ -637,7 +637,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     <div class="hd-inner">
       <div class="hd-logo"><img id="logoImg" alt="Logótipo"></div>
       <div class="hd-text">
-        <div class="hd-eyebrow">Igreja Evangélica Assembleia de Deus</div>
+        <div class="hd-eyebrow">Igreja Evangélica Assembleia de Deus Alfa e Ômega do Trevo</div>
         <h1 class="hd-title">Relatório do Culto</h1>
         <div class="hd-rule"></div>
       </div>
@@ -1184,7 +1184,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if(mk.length){ doc.autoTable({startY:y,head:[["Mês","Nº cultos","Presentes","Média"]],body:mk.map(function(m){var o=s.byMonth[m];return [m,String(o.n),String(o.p),String(o.n?Math.round(o.p/o.n):0)];}),theme:"grid",styles:{font:"helvetica",fontSize:10.5,cellPadding:6,textColor:[35,42,58],lineColor:[228,231,238]},headStyles:{fillColor:[29,36,68],textColor:[255,255,255],fontStyle:"bold"},columnStyles:{1:{halign:"center"},2:{halign:"center"},3:{halign:"center"}},margin:{left:M,right:M}}); y=doc.lastAutoTable.finalY+16; }
     doc.autoTable({startY:y,head:[["Data","Tipo","Present.","Anc.","Visit.","Novos"]],body:recs.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"");}).map(function(r){return [fmtDate(r.data),r.tipo||"—",String(r.total||0),String(r.ancioes!=null?r.ancioes:((r.counts&&r.counts["Anciãos"])||0)),String(r.visitantes?r.visitantes.length:0),String(r.novos||0)];}),theme:"striped",styles:{font:"helvetica",fontSize:9.5,cellPadding:5,textColor:[35,42,58]},headStyles:{fillColor:tint,textColor:navy,fontStyle:"bold"},columnStyles:{2:{halign:"center"},3:{halign:"center"},4:{halign:"center"},5:{halign:"center"}},margin:{left:M,right:M}});
     var pages=doc.internal.getNumberOfPages();
-    for(var p=1;p<=pages;p++){doc.setPage(p);var H=doc.internal.pageSize.getHeight();doc.setDrawColor(228,231,238);doc.line(M,H-30,W-M,H-30);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,156,168);doc.text("Igreja Evangélica Assembleia de Deus \\u2014 Alfa e Omega do Trevo",M,H-18);doc.text("Pág. "+p+"/"+pages,W-M,H-18,{align:"right"});}
+    for(var p=1;p<=pages;p++){doc.setPage(p);var H=doc.internal.pageSize.getHeight();doc.setDrawColor(228,231,238);doc.line(M,H-30,W-M,H-30);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,156,168);doc.text("Igreja Evangélica Assembleia de Deus Alfa e ômega\\u2014 Alfa e Omega do Trevo",M,H-18);doc.text("Pág. "+p+"/"+pages,W-M,H-18,{align:"right"});}
     savePdfDoc(doc,"Relatorio_Geral_"+(new Date().toISOString().substring(0,10))+".pdf");
   }
   function exportCsv(){
@@ -1339,7 +1339,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       doc.setPage(p); var H=doc.internal.pageSize.getHeight();
       doc.setDrawColor(228,232,229); doc.line(M,H-30,W-M,H-30);
       doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(150,160,153);
-      doc.text("Igreja Evangélica Assembleia de Deus — Alfa e Omega do Trevo", M, H-18);
+      doc.text("Igreja Evangélica Assembleia de Deus Alfa e Omega do Trevo", M, H-18);
       doc.text("Pág. "+p+"/"+pages, W-M, H-18, {align:"right"});
     }
     savePdfDoc(doc, "Relatorio_Culto_"+(val("data")||"culto")+".pdf");
