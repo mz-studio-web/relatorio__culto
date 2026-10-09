@@ -1,0 +1,57 @@
+=============================================================
+ FOTOS DO CULTO — guardar no Google Drive (galeria por culto)
+=============================================================
+
+A app já tem a galeria pronta. Falta ligá-la ao Google Drive da
+igreja, através de um pequeno "ajudante" (Google Apps Script) que
+corre na conta Google da igreja e grava as fotos numa pasta do
+Drive. Configura-se UMA vez. É gratuito.
+
+A secção "Fotos do culto" só aparece na app depois de concluir isto.
+
+-------------------------------------------------------------
+PASSO 1 — Criar o script
+-------------------------------------------------------------
+1. Com a conta Google da igreja, vá a https://script.google.com
+2. "New project" / "Novo projeto".
+3. Apague o código que aparece e cole TODO o conteúdo do ficheiro
+   apps-script-fotos.gs. Guarde (ícone do disquete).
+
+-------------------------------------------------------------
+PASSO 2 — Publicar como aplicação web
+-------------------------------------------------------------
+1. Botão "Deploy" (Implementar) -> "New deployment".
+2. Em "Select type" escolha "Web app".
+3. Configure:
+   - Execute as: "Me" (a conta da igreja)
+   - Who has access: "Anyone"
+4. Clique "Deploy".
+5. Vai pedir autorização: escolha a conta, e no aviso clique em
+   "Advanced" -> "Go to <nome> (unsafe)" -> "Allow".
+   (Este aviso é normal por ser o seu próprio script.)
+6. No fim, COPIE o "Web app URL" (termina em /exec).
+
+-------------------------------------------------------------
+PASSO 3 — Colar o link no index.html
+-------------------------------------------------------------
+1. Abra o index.html e procure:  var DRIVE_UPLOAD_URL = "COLE_AQUI";
+2. Substitua "COLE_AQUI" pelo Web app URL copiado (mantendo as aspas).
+3. Guarde e volte a publicar o site (GitHub: enviar o index.html por
+   cima e Commit).
+
+-------------------------------------------------------------
+PRONTO
+-------------------------------------------------------------
+Na app aparece a secção "Fotos do culto". Toque em "Adicionar foto",
+escolha/tire a foto, e ela é enviada para a pasta "Relatorio do Culto
+- Fotos" no Drive da igreja. As miniaturas aparecem na galeria;
+toque numa para abrir no Drive. As fotos ficam ligadas ao culto e
+são partilhadas (via Firebase) com os outros dispositivos.
+
+NOTAS HONESTAS:
+- As fotos precisam de internet para enviar (são ficheiros grandes).
+- Por o link aceitar envios de "Anyone", quem souber o link poderia
+  enviar fotos. Para uma app interna costuma ser aceitável; se quiser
+  proteção extra (um código secreto), peça-me e eu acrescento.
+- Se alguma miniatura não aparecer logo, costuma ser só o Drive a
+  processar — atualize passado um momento.

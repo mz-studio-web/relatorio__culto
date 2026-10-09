@@ -611,7 +611,12 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .def-row:last-child{border-bottom:none;}
   .def-row span{color:var(--muted);} .def-row b{color:var(--text);text-align:right;font-weight:700;}
   .def-note{font-size:12.5px;color:var(--muted);margin:14px 20px 0;line-height:1.5;}
-  .wrap{padding-bottom:150px;}
+  .echart{width:100%;height:230px;}
+  .echart-3d{height:300px;}
+  .stats-range{display:flex;gap:10px;margin:0 0 14px;}
+  .stats-range label{flex:1;display:flex;flex-direction:column;gap:4px;font-size:11.5px;font-weight:600;color:var(--muted);}
+  .stats-range input{border:1.5px solid var(--line);border-radius:12px;padding:9px 11px;font-size:14px;font-family:inherit;background:#fff;color:var(--text);}
+  .wrap{padding-bottom:96px;}
   .tabbar{position:fixed;left:0;right:0;bottom:0;max-width:820px;margin:0 auto;display:flex;z-index:45;
     background:rgba(255,255,255,.97);backdrop-filter:blur(10px);border-top:1px solid var(--line);
     padding:6px 6px calc(6px + env(safe-area-inset-bottom));}
@@ -622,6 +627,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   .tbadge{position:absolute;top:2px;left:calc(50% + 7px);background:var(--orange);color:#fff;font-size:9px;font-weight:800;
     min-width:15px;height:15px;border-radius:999px;display:flex;align-items:center;justify-content:center;padding:0 3px;}
   .footer{bottom:62px;}
+  .reg-actions{display:flex;gap:10px;margin:24px 16px 8px;}
   @media (min-width:820px){
     .tabbar{top:0;bottom:auto;border-top:none;border-bottom:1px solid var(--line);}
     .wrap{padding-top:60px;padding-bottom:96px;}
@@ -637,7 +643,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     <div class="hd-inner">
       <div class="hd-logo"><img id="logoImg" alt="Logótipo"></div>
       <div class="hd-text">
-        <div class="hd-eyebrow">Igreja Evangélica Assembleia de Deus Alfa e Ômega do Trevo</div>
+        <div class="hd-eyebrow">Igreja Evangélica Assembleia de Deus Alfa & Ômega </div>
         <h1 class="hd-title">Relatório do Culto</h1>
         <div class="hd-rule"></div>
       </div>
@@ -677,8 +683,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
 
   <div class="section-title">Visitantes</div>
   <div class="card"><div class="card-pad">
-    <button class="vis-add" id="addVis">+ Adicionar visitante</button>
     <div class="vis-list" id="visList"></div>
+    <button class="vis-add" id="addVis" style="margin-top:12px">+ Adicionar visitante</button>
   </div></div>
 
   <div class="section-title" id="fotosTitle" style="display:none">Fotos do culto</div>
@@ -723,6 +729,10 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       <button class="rep-add" type="button">+ Adicionar texto</button>
     </div>
   </div></div>
+  <div class="reg-actions">
+    <button class="btn btn-reset" id="resetBtn">Novo culto</button>
+    <button class="btn btn-pdf" id="pdfBtn">Gerar PDF</button>
+  </div>
   </section>
   <section class="page" id="page-historico"><h2 class="page-title">Histórico de cultos</h2><div id="histoBody"></div></section>
   <section class="page" id="page-estatistica"><h2 class="page-title">Estatística</h2><div id="statsBody"></div></section>
@@ -736,12 +746,6 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   <button data-tab="estatistica" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>Estatística</button>
   <button data-tab="definicoes" type="button"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="1.7" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.7" fill="currentColor" stroke="none"/><circle cx="8" cy="17" r="1.7" fill="currentColor" stroke="none"/></svg>Definições</button>
 </nav>
-
-<div class="footer" id="regActions">
-  <button class="btn btn-reset" id="resetBtn">Novo</button>
-  <button class="btn btn-save" id="saveBtn">Guardar</button>
-  <button class="btn btn-pdf" id="pdfBtn">Gerar PDF</button>
-</div>
 
 <div class="modal" id="histModal">
   <div class="sheet">
@@ -797,6 +801,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   var DRIVE_UPLOAD_URL = "https://script.google.com/macros/s/AKfycbw60gbPTC7l7B4x56ZaZCrWCtWIJ_nHqsNXSKABIX5jrsuLsIQbNIvVRobzpuMXaQtvKw/exec"; // link do Google Apps Script (fotos). Deixe assim para desativar as fotos.
   var histView="list";
   var statsPeriod="tudo";
+  var statsFrom="",statsTo="";
   var autoTimer=null;
   var autoAnnounced=false;
 
@@ -1039,7 +1044,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   function inPeriod(rec){
     if(statsPeriod==="tudo")return true;
-    var d=rec.data||""; if(d.length<7)return false;
+    var d=rec.data||"";
+    if(statsPeriod==="intervalo"){ var dm=d.substring(0,7); if(dm.length<7)return false; if(statsFrom && dm<statsFrom)return false; if(statsTo && dm>statsTo)return false; return true; }
+    if(d.length<7)return false;
     var now=new Date(); var y=String(now.getFullYear()); var ym=y+"-"+String(now.getMonth()+1).padStart(2,"0");
     if(statsPeriod==="ano")return d.substring(0,4)===y;
     if(statsPeriod==="mes")return d.substring(0,7)===ym;
@@ -1134,11 +1141,13 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   function renderStats(){
     var cont=document.getElementById("statsBody");
-    var PL={tudo:"Tudo",ano:"Ano atual",mes:"Mês atual"};
-    var periodBar='<div class="stats-period">'+["tudo","ano","mes"].map(function(p){return '<button type="button" class="sp'+(statsPeriod===p?" active":"")+'" data-p="'+p+'">'+PL[p]+'</button>';}).join("")+'</div>';
+    var PL={tudo:"Tudo",mes:"Mês",ano:"Ano",intervalo:"Intervalo"};
+    var periodBar='<div class="stats-period">'+["tudo","mes","ano","intervalo"].map(function(p){return '<button type="button" class="sp'+(statsPeriod===p?" active":"")+'" data-p="'+p+'">'+PL[p]+'</button>';}).join("")+'</div>';
+    var rangeBar=(statsPeriod==="intervalo")?'<div class="stats-range"><label>De (mês)<input type="month" id="stFrom" value="'+statsFrom+'"></label><label>Até (mês)<input type="month" id="stTo" value="'+statsTo+'"></label></div>':'';
+    var periodLabel=PL[statsPeriod]; if(statsPeriod==="intervalo"){periodLabel="De "+(statsFrom?mLbl(statsFrom):"início")+" a "+(statsTo?mLbl(statsTo):"atual");} else if(statsPeriod==="ano"){periodLabel="Ano "+new Date().getFullYear();} else if(statsPeriod==="mes"){periodLabel="Mês atual";}
     var recs=getHist().filter(inPeriod);
-    function wireP(){cont.querySelectorAll(".sp").forEach(function(bt){bt.addEventListener("click",function(){statsPeriod=bt.getAttribute("data-p");renderStats();});});}
-    if(recs.length===0){cont.innerHTML=periodBar+'<div class="hist-empty">Sem cultos guardados neste período.</div>';wireP();return;}
+    function wireP(){cont.querySelectorAll(".sp").forEach(function(bt){bt.addEventListener("click",function(){statsPeriod=bt.getAttribute("data-p");renderStats();});});var f=document.getElementById("stFrom"),t=document.getElementById("stTo");if(f)f.addEventListener("change",function(){statsFrom=f.value;renderStats();});if(t)t.addEventListener("change",function(){statsTo=t.value;renderStats();});}
+    if(recs.length===0){cont.innerHTML=periodBar+rangeBar+'<div class="hist-empty">Sem cultos guardados neste período.</div>';wireP();return;}
     var s=computeStats(recs);
     var cards='<div class="stat-cards">'+statCard("Cultos",s.n)+statCard("Presentes",s.totalPresencas)+statCard("Média/culto",s.media)+statCard("Visitantes",s.totalVis)+statCard("Novos conv.",s.totalNovos)+statCard("Anciãos",s.totalAnc)+statCard("Membros Ceia",s.totalCeiaM)+statCard("Tomaram Ceia",s.totalCeiaT)+'</div>';
     var catRows=CATS.map(function(c){return '<tr><td>'+c.name+'</td><td>'+s.cat[c.name].total+'</td><td>'+s.cat[c.name].media+'</td></tr>';}).join("");
@@ -1152,9 +1161,41 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var chartCat='<div class="stat-block"><h4>Por categoria</h4>'+svgHBars(catItems,"#1D2444")+'</div>';
     var tipoItems=Object.keys(s.tipo).map(function(t){return {label:tShort(t), value:s.tipo[t].n};});
     var chartTipo='<div class="stat-block"><h4>Cultos por tipo</h4>'+svgHBars(tipoItems,"#F59A23")+'</div>';
-    cont.innerHTML=periodBar+cards+chartMonth+'<div class="charts-grid">'+chartCat+chartTipo+'</div>'+catTable+tipoTable+'<button class="hist-export" id="genPdf" type="button">Gerar relatório geral (PDF)</button>';
+    var mAnc=s.n?Math.round(s.totalAnc/s.n):0,mVis=s.n?Math.round(s.totalVis/s.n):0,mNov=s.n?Math.round(s.totalNovos/s.n):0;
+    var indTable='<div class="stat-block"><h4>Indicadores (total e média por culto)</h4><table class="stat-table"><thead><tr><th>Indicador</th><th>Total</th><th>Média</th></tr></thead><tbody><tr><td>Anciãos</td><td>'+s.totalAnc+'</td><td>'+mAnc+'</td></tr><tr><td>Visitantes</td><td>'+s.totalVis+'</td><td>'+mVis+'</td></tr><tr><td>Novos convertidos</td><td>'+s.totalNovos+'</td><td>'+mNov+'</td></tr></tbody></table></div>';
+    cont.innerHTML=periodBar+rangeBar+cards+chartMonth+'<div class="charts-grid">'+chartCat+chartTipo+'</div>'+catTable+tipoTable+indTable+'<button class="hist-export" id="genPdf" type="button">Gerar relatório geral (PDF)</button>';
     wireP();
-    document.getElementById("genPdf").addEventListener("click",function(){ generalPdf(recs,PL[statsPeriod]); });
+    document.getElementById("genPdf").addEventListener("click",function(){ generalPdf(recs,periodLabel); });
+  }
+  function ensureEcharts(cb){
+    if(window.echarts){cb();return;}
+    window._ecCb=(window._ecCb||[]); window._ecCb.push(cb);
+    if(window._ecLoading)return; window._ecLoading=true;
+    function load(src,next){var sc=document.createElement("script");sc.src=src;sc.onload=next;sc.onerror=next;document.head.appendChild(sc);}
+    load("https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js",function(){
+      load("https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js",function(){
+        window._ecLoading=false; var cbs=window._ecCb||[]; window._ecCb=[]; cbs.forEach(function(f){try{f();}catch(e){}});
+      });
+    });
+  }
+  function initEcharts(s,recs){
+    if(!window.echarts)return;
+    (window._ec||[]).forEach(function(c){try{c.dispose();}catch(e){}}); window._ec=[];
+    var PAL=['#1D2444','#F59A23','#3E9A6B','#7A62D6','#DD648A','#2A3560','#D9932A'];
+    var months=Object.keys(s.byMonth).sort();
+    function mk(id,opt){var el=document.getElementById(id); if(!el)return; try{var c=echarts.init(el); c.setOption(opt); window._ec.push(c);}catch(e){}}
+    mk("ec-month",{grid:{left:42,right:14,top:22,bottom:26},tooltip:{trigger:'axis'},xAxis:{type:'category',data:months.map(mLbl),axisLabel:{fontSize:10,color:'#6A6F7E'}},yAxis:{type:'value',axisLabel:{color:'#6A6F7E'}},series:[{type:'bar',data:months.map(function(m){return s.byMonth[m].p;}),itemStyle:{color:'#1D2444',borderRadius:[5,5,0,0]},barWidth:'55%',label:{show:true,position:'top',fontSize:10,color:'#1D2444'}}]});
+    mk("ec-cat",{color:PAL,tooltip:{trigger:'item',formatter:'{b}: {c} ({d}%)'},legend:{bottom:0,textStyle:{fontSize:10}},series:[{type:'pie',radius:['45%','70%'],center:['50%','42%'],data:CATS.map(function(cat){return {name:cat.name,value:s.cat[cat.name].total};}),label:{show:false}}]});
+    mk("ec-tipo",{color:PAL,tooltip:{trigger:'item',formatter:'{b}: {c} ({d}%)'},legend:{bottom:0,textStyle:{fontSize:10}},series:[{type:'pie',radius:['45%','70%'],center:['50%','42%'],data:Object.keys(s.tipo).map(function(t){return {name:tShort(t),value:s.tipo[t].n};}),label:{show:false}}]});
+    var e3=document.getElementById("ec-3d");
+    if(e3){ try{
+      var data3=[],maxv=1;
+      months.forEach(function(m,mi){CATS.forEach(function(cat,ci){var v=0;recs.forEach(function(r){if((r.data||'').substring(0,7)===m)v+=((r.counts&&r.counts[cat.name])||0);});if(v>maxv)maxv=v;data3.push([mi,ci,v]);});});
+      var c4=echarts.init(e3);
+      c4.setOption({tooltip:{},visualMap:{show:false,min:0,max:maxv,inRange:{color:['#CBD2E6','#F59A23','#1D2444']}},xAxis3D:{type:'category',data:months.map(mLbl)},yAxis3D:{type:'category',data:CATS.map(function(c){return c.name;})},zAxis3D:{type:'value'},grid3D:{boxWidth:90,boxDepth:60,viewControl:{autoRotate:true,autoRotateSpeed:8}},series:[{type:'bar3D',data:data3,shading:'lambert',label:{show:false}}]});
+      window._ec.push(c4);
+    }catch(e){var blk=document.getElementById("blk3d"); if(blk)blk.style.display='none';} }
+    if(!window._ecResize){window._ecResize=true;window.addEventListener('resize',function(){(window._ec||[]).forEach(function(c){try{c.resize();}catch(e){}});});}
   }
   function generalPdf(recs,periodLabel){
     if(!(window.jspdf && window.jspdf.jsPDF)){toast("A biblioteca de PDF não carregou.");return;}
@@ -1184,7 +1225,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if(mk.length){ doc.autoTable({startY:y,head:[["Mês","Nº cultos","Presentes","Média"]],body:mk.map(function(m){var o=s.byMonth[m];return [m,String(o.n),String(o.p),String(o.n?Math.round(o.p/o.n):0)];}),theme:"grid",styles:{font:"helvetica",fontSize:10.5,cellPadding:6,textColor:[35,42,58],lineColor:[228,231,238]},headStyles:{fillColor:[29,36,68],textColor:[255,255,255],fontStyle:"bold"},columnStyles:{1:{halign:"center"},2:{halign:"center"},3:{halign:"center"}},margin:{left:M,right:M}}); y=doc.lastAutoTable.finalY+16; }
     doc.autoTable({startY:y,head:[["Data","Tipo","Present.","Anc.","Visit.","Novos"]],body:recs.slice().sort(function(a,b){return (a.data||"").localeCompare(b.data||"");}).map(function(r){return [fmtDate(r.data),r.tipo||"—",String(r.total||0),String(r.ancioes!=null?r.ancioes:((r.counts&&r.counts["Anciãos"])||0)),String(r.visitantes?r.visitantes.length:0),String(r.novos||0)];}),theme:"striped",styles:{font:"helvetica",fontSize:9.5,cellPadding:5,textColor:[35,42,58]},headStyles:{fillColor:tint,textColor:navy,fontStyle:"bold"},columnStyles:{2:{halign:"center"},3:{halign:"center"},4:{halign:"center"},5:{halign:"center"}},margin:{left:M,right:M}});
     var pages=doc.internal.getNumberOfPages();
-    for(var p=1;p<=pages;p++){doc.setPage(p);var H=doc.internal.pageSize.getHeight();doc.setDrawColor(228,231,238);doc.line(M,H-30,W-M,H-30);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,156,168);doc.text("Igreja Evangélica Assembleia de Deus Alfa e ômega\\u2014 Alfa e Omega do Trevo",M,H-18);doc.text("Pág. "+p+"/"+pages,W-M,H-18,{align:"right"});}
+    for(var p=1;p<=pages;p++){doc.setPage(p);var H=doc.internal.pageSize.getHeight();doc.setDrawColor(228,231,238);doc.line(M,H-30,W-M,H-30);doc.setFont("helvetica","normal");doc.setFontSize(8);doc.setTextColor(150,156,168);doc.text("Igreja Evangélica Assembleia de Deus Alfa & Ômega \\u2014  Trevo",M,H-18);doc.text("Pág. "+p+"/"+pages,W-M,H-18,{align:"right"});}
     savePdfDoc(doc,"Relatorio_Geral_"+(new Date().toISOString().substring(0,10))+".pdf");
   }
   function exportCsv(){
@@ -1199,7 +1240,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var a=document.createElement("a");a.href=url;a.download="Historico_Cultos.csv";document.body.appendChild(a);a.click();document.body.removeChild(a);
     setTimeout(function(){URL.revokeObjectURL(url);},1500);
   }
-  document.getElementById("saveBtn").addEventListener("click",saveCurrent);
+  /* botão "Guardar" removido — grava automaticamente */
   function renderDefinicoes(){
     var b=document.getElementById("defBody"); if(!b)return;
     var n=getHist().length;
