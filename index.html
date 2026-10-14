@@ -701,7 +701,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     <div class="card"><div class="card-pad">
       <div class="field"><label for="f_ceiaDir">Dirigente da Santa Ceia</label><input class="inp" id="f_ceiaDir" type="text" autocomplete="off"></div>
       <div class="field"><label for="f_ceiaPreg">Pregador</label><input class="inp" id="f_ceiaPreg" type="text" autocomplete="off"></div>
-      <div class="field"><label for="f_ceiaTema">Tema (se aplicável)</label><input class="inp" id="f_ceiaTema" type="text" autocomplete="off"></div>
+      <div class="field"><label for="f_ceiaTema">Tema</label><input class="inp" id="f_ceiaTema" type="text" autocomplete="off"></div>
       <div class="field"><label for="f_ceiaTexto">Texto Base</label><input class="inp" id="f_ceiaTexto" type="text" autocomplete="off"></div>
       <div class="rep-label" style="margin-top:20px">Participantes</div>
       <div class="tiles" id="ceiaTiles" style="padding:0;margin-top:8px"></div>
@@ -764,7 +764,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   <section class="page" id="page-historico"><h2 class="page-title">Histórico de cultos</h2><div id="histoBody"></div></section>
   <section class="page" id="page-convertidos">
     <h2 class="page-title">Novos convertidos</h2>
-    <div id="convAddWrap" style="margin:12px 16px 0"><button class="vis-add" id="cvAdd" type="button">+ Novo convertido</button></div>
+    <div id="convList" style="margin-top:6px"></div>
     <div class="card" id="convFormCard" style="display:none;margin-top:12px"><div class="card-pad">
       <div id="convFormTitle" style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:14px">Novo convertido</div>
       <div class="field"><label for="cv_nome">Nome completo *</label><input class="inp" id="cv_nome" type="text" autocomplete="off"></div>
@@ -778,8 +778,9 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       <div class="field"><label for="cv_refNome">Pessoa de referência</label><input class="inp" id="cv_refNome" type="text" autocomplete="off"></div>
       <div class="field"><label for="cv_refContacto">Contacto da pessoa de referência</label><input class="inp" id="cv_refContacto" type="tel" inputmode="tel" autocomplete="off"></div>
       <div class="conv-btns"><button class="btn btn-reset" id="cvCancel" type="button">Cancelar</button><button class="btn btn-pdf" id="cvSave" type="button">Guardar</button></div>
+      <button class="vis-add" id="cvSaveNext" type="button" style="margin-top:10px">Guardar e adicionar outro</button>
     </div></div>
-    <div id="convList" style="margin-top:14px"></div>
+    <div id="convAddWrap" style="margin:12px 16px 0"><button class="vis-add" id="cvAdd" type="button">+ Adicionar novo convertido</button></div>
     <div class="reg-actions"><button class="btn btn-pdf" id="cvPdf" type="button">Gerar relatório (PDF)</button></div>
   </section>
   <section class="page" id="page-estatistica"><h2 class="page-title">Estatística</h2><div id="statsBody"></div></section>
@@ -1311,8 +1312,11 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     var ph={id:null}; fotos.push(ph); renderFotos();
     var reader=new FileReader();
     reader.onload=function(){
-      var b64=reader.result.split(",")[1];
-      fetch(DRIVE_UPLOAD_URL,{method:"POST",body:JSON.stringify({base64:b64,mime:file.type,name:file.name})})
+      shrinkImage(reader.result,1600,0.82,0).then(function(du){
+        var mime=(du.match(/^data:([^;]+)/)||[])[1]||file.type;
+        var nm=file.name||"foto"; if(mime==="image/jpeg"&&!/\.jpe?g$/i.test(nm))nm=nm.replace(/\.[^.]+$/,"")+".jpg";
+        return fetch(DRIVE_UPLOAD_URL,{method:"POST",body:JSON.stringify({base64:du.split(",")[1],mime:mime,name:nm})});
+      })
         .then(function(r){return r.json();})
         .then(function(j){ if(j&&j.ok&&j.id){ ph.id=j.id; renderFotos(); scheduleAutoSave(); toast("Foto enviada"); } else { var k=fotos.indexOf(ph); if(k>=0)fotos.splice(k,1); renderFotos(); toast("Falha ao enviar a foto"); } })
         .catch(function(){ var k=fotos.indexOf(ph); if(k>=0)fotos.splice(k,1); renderFotos(); toast("Sem internet para enviar a foto"); });
@@ -1492,21 +1496,23 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     document.getElementById("convFormTitle").textContent=c?"Editar convertido":"Novo convertido";
     document.getElementById("convFormCard").style.display="";
     document.getElementById("convAddWrap").style.display="none";
-    window.scrollTo({top:0,behavior:"smooth"});
+    var fc=document.getElementById("convFormCard"); if(fc&&fc.scrollIntoView)fc.scrollIntoView({behavior:"smooth",block:"start"});
   }
   function convCloseForm(){
     convEditing=null;
     document.getElementById("convFormCard").style.display="none";
     document.getElementById("convAddWrap").style.display="";
   }
-  function convSave(){
+  function convSave(next){
     var o={}; CV_IDS.forEach(function(k){o[k]=document.getElementById("cv_"+k).value.trim();});
     if(!o.nome){toast("Escreva o nome do convertido");return;}
     var arr=convGet().slice(); var idx=-1;
     if(convEditing){arr.forEach(function(r,i){if(r.id===convEditing)idx=i;});}
     o.savedAt=new Date().toISOString();
     if(idx>=0){o.id=convEditing;arr[idx]=o;}else{o.id=Date.now();arr.push(o);}
-    convSet(arr); convCloseForm(); renderConvertidos(); toast("Convertido guardado");
+    convSet(arr); renderConvertidos();
+    if(next===true){ convOpenForm(null); toast("Guardado. Pode adicionar o seguinte."); }
+    else { convCloseForm(); toast("Convertido guardado"); }
   }
   function convDel(id){
     requireAdmin(function(){
@@ -1557,7 +1563,8 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
   }
   document.getElementById("cvAdd").addEventListener("click",function(){convOpenForm(null);});
   document.getElementById("cvCancel").addEventListener("click",convCloseForm);
-  document.getElementById("cvSave").addEventListener("click",convSave);
+  document.getElementById("cvSave").addEventListener("click",function(){convSave(false);});
+  document.getElementById("cvSaveNext").addEventListener("click",function(){convSave(true);});
   document.getElementById("cvPdf").addEventListener("click",convPdf);
   function rerenderActive(){
     if(currentTab==="historico")renderList(); else if(currentTab==="convertidos")renderConvertidos();
@@ -1613,7 +1620,77 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
       doc.text("Pág. "+p+"/"+pages, W-M, H-18, {align:"right"});
     }
   }
+  function shrinkImage(du,maxDim,q,minLen){
+    return new Promise(function(resolve){
+      try{
+        if(minLen && du.length<minLen){ resolve(du); return; }
+        var img=new Image(), done=false;
+        var to=setTimeout(function(){ if(!done){done=true;resolve(du);} },8000);
+        img.onload=function(){
+          if(done)return; done=true; clearTimeout(to);
+          try{
+            var w0=img.naturalWidth,h0=img.naturalHeight,sc=Math.min(1,maxDim/Math.max(w0,h0));
+            var c=document.createElement("canvas"); c.width=Math.max(1,Math.round(w0*sc)); c.height=Math.max(1,Math.round(h0*sc));
+            var cx=c.getContext("2d"); cx.fillStyle="#fff"; cx.fillRect(0,0,c.width,c.height); cx.drawImage(img,0,0,c.width,c.height);
+            var out=c.toDataURL("image/jpeg",q);
+            if(out && out.indexOf("data:image/jpeg")===0 && (!minLen || out.length<du.length)) resolve(out); else resolve(du);
+          }catch(e){ resolve(du); }
+        };
+        img.onerror=function(){ if(!done){done=true;clearTimeout(to);resolve(du);} };
+        img.src=du;
+      }catch(e){ resolve(du); }
+    });
+  }
+  function fetchWithTimeout(url,ms){
+    return new Promise(function(res,rej){
+      var t=setTimeout(function(){rej(new Error("timeout"));},ms);
+      fetch(url).then(function(r){clearTimeout(t);res(r);},function(e){clearTimeout(t);rej(e);});
+    });
+  }
+  function loadPhotos(ids){
+    var out=new Array(ids.length);
+    return Promise.all(ids.map(function(id,i){
+      return fetchWithTimeout(DRIVE_UPLOAD_URL+"?id="+encodeURIComponent(id),25000)
+        .then(function(r){return r.json();})
+        .then(function(j){ if(!j||!j.ok||!j.base64)throw new Error("sem imagem"); return shrinkImage("data:"+(j.mime||"image/jpeg")+";base64,"+j.base64,1200,0.75,600000); })
+        .then(function(du){ out[i]=du; })
+        .catch(function(){ out[i]=null; });
+    })).then(function(){ return out.filter(Boolean); });
+  }
+  function addPhotoPages(doc,imgs,total,M){
+    if(!imgs.length)return;
+    var W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight();
+    var gap=14, cw=(W-2*M-gap)/2, ch=208, perPage=6, i=0;
+    while(i<imgs.length){
+      doc.addPage();
+      doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(29,36,68);
+      doc.text(i===0?"Fotos do culto":"Fotos do culto (continuação)",M,42);
+      for(var k=0;k<perPage&&i<imgs.length;k++,i++){
+        var x=M+(k%2)*(cw+gap), y=64+Math.floor(k/2)*(ch+gap);
+        doc.setDrawColor(228,232,229); doc.setFillColor(247,248,251); doc.roundedRect(x,y,cw,ch,6,6,"FD");
+        try{
+          var p=doc.getImageProperties(imgs[i]); var s=Math.min((cw-12)/p.width,(ch-12)/p.height);
+          var iw=p.width*s, ih=p.height*s;
+          doc.addImage(imgs[i],p.fileType||"JPEG",x+(cw-iw)/2,y+(ch-ih)/2,iw,ih);
+        }catch(e){}
+      }
+    }
+    if(total>imgs.length){
+      doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(110,120,113);
+      doc.text((total-imgs.length)+" foto(s) não incluída(s) no PDF (limite de 12 ou sem ligação) — disponíveis no Google Drive.",M,H-48);
+    }
+  }
   function buildCultoPdf(rec){
+    if(window._pdfBusy){ toast("A gerar o PDF…"); return; }
+    var ids=(rec.fotos||[]).map(function(f){return (f&&f.id)?f.id:f;}).filter(function(x){return typeof x==="string"&&x;});
+    if(!ids.length||!driveReady()){ cultoPdfCore(rec,[],0); return; }
+    window._pdfBusy=true; toast("A preparar as fotos…");
+    loadPhotos(ids.slice(0,12)).then(function(imgs){
+      try{ cultoPdfCore(rec,imgs,ids.length); }finally{ window._pdfBusy=false; }
+      if(!imgs.length) toast("Sem ligação às fotos — PDF gerado sem fotos");
+    }).catch(function(){ window._pdfBusy=false; toast("Erro ao gerar o PDF"); });
+  }
+  function cultoPdfCore(rec,imgs,totalFotos){
     if(!(window.jspdf && window.jspdf.jsPDF)){ toast("A biblioteca de PDF não carregou."); return; }
     var doc=new window.jspdf.jsPDF({unit:"pt",format:"a4"});
     var W=doc.internal.pageSize.getWidth(), M=40;
@@ -1669,6 +1746,7 @@ function(t){t.__bidiEngine__=t.prototype.__bidiEngine__=function(t){var r,n,i,a,
     if(vis.length){
       doc.autoTable({startY:y,head:[["#","Nome do visitante","Proveniência"]],body:vis.map(function(v,i){return [String(i+1),(v.nome&&v.nome.trim())?v.nome.trim():"—",(v.origem&&v.origem.trim())?v.origem.trim():"—"];}),theme:"striped",styles:{font:"helvetica",fontSize:10.5,cellPadding:6,textColor:[35,48,41]},headStyles:{fillColor:tint,textColor:navy,fontStyle:"bold"},columnStyles:{0:{halign:"center",cellWidth:30}},margin:{left:M,right:M}});
     }
+    addPhotoPages(doc,imgs,totalFotos,M);
     drawPdfFooters(doc,M);
     savePdfDoc(doc,"Relatorio_Culto_"+(rec.data||"culto")+".pdf");
   }

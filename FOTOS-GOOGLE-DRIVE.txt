@@ -55,3 +55,29 @@ NOTAS HONESTAS:
   proteção extra (um código secreto), peça-me e eu acrescento.
 - Se alguma miniatura não aparecer logo, costuma ser só o Drive a
   processar — atualize passado um momento.
+
+=============================================================
+ ATUALIZAÇÃO — FOTOS NO PDF DO CULTO
+=============================================================
+Para as fotos aparecerem no PDF do culto (página "Fotos do culto"),
+o script do Google precisa de ser ATUALIZADO (acrescentámos a função
+doGet, que entrega as fotos à app). Faça uma vez:
+
+1. Abra o seu projeto em https://script.google.com
+2. Apague o código e cole TODO o conteúdo do novo apps-script-fotos.gs.
+   Guarde (disquete).
+3. Botão "Deploy / Implementar" -> "Manage deployments / Gerir
+   implementações" -> ícone do lápis (Editar).
+4. Em "Version / Versão" escolha "New version / Nova versão" -> Deploy.
+   IMPORTANTE: faça assim (e NÃO "New deployment"), para o endereço
+   (URL) continuar o MESMO e não ter de mexer no index.html.
+
+Como funciona:
+- Ao gerar o PDF de um culto com fotos, a app vai buscar cada foto ao
+  Drive (precisa de internet), reduz o tamanho e coloca-as no fim do PDF,
+  2 por linha, até 12 fotos. As restantes ficam só no Drive (o PDF avisa).
+- Se não houver internet, o PDF sai na mesma, sem as fotos.
+- Agora as fotos também são reduzidas ANTES de enviar (máx. 1600 px):
+  o envio é mais rápido e ocupa menos espaço no Drive.
+- Segurança: o script só entrega imagens que estejam dentro da pasta
+  "Relatorio do Culto - Fotos".
