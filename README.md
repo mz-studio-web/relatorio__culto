@@ -1,4 +1,4 @@
-# Relatório do Culto — Igreja Evangélica Assembleia de Deus (Alfa e Omega do Trevo)
+# Relatório do Culto — Igreja Evangélica Assembleia de Deus Alfa & Ômega
 
 Aplicação web para registar as **presenças** e gerar os **relatórios** dos cultos.
 Funciona **offline**, instala-se no telemóvel como uma app e guarda o histórico no próprio aparelho.

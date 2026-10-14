@@ -1,6 +1,6 @@
 =============================================================
  HISTÓRICO PARTILHADO ENTRE DISPOSITIVOS (Firebase / Firestore)
- Relatório do Culto — Igreja Evangélica Assembleia de Deus
+ Relatório do Culto — Igreja Evangélica Assembleia de Deus Alfa & Ômega
 =============================================================
 
 A app funciona sem isto (guarda em cada aparelho). Faça esta
@@ -68,3 +68,16 @@ NOTA DE SEGURANÇA (honesta): estas regras deixam quem souber o
 endereço do projeto ler/gravar. Para uma app interna de igreja é
 geralmente aceitável. Se quiser proteção extra (login anónimo),
 peça-me e eu acrescento.
+
+-------------------------------------------------------------
+NOTA — NOVOS DADOS NO MESMO DOCUMENTO
+-------------------------------------------------------------
+Desde a aba "Novos convertidos" e a senha de administrador, o mesmo
+documento (relatorio_culto/historico) guarda também a lista de novos
+convertidos e as senhas dos administradores (em forma de "hash", nunca
+a senha em texto). NÃO é preciso alterar as regras: continuam as mesmas.
+
+Atenção: com estas regras qualquer pessoa que conheça o endereço do
+projeto consegue ler/gravar o documento. A senha de administrador é uma
+barreira de uso interno; para proteção forte (e para dados pessoais dos
+convertidos) peça a versão com login (Firebase Authentication).
